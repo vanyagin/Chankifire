@@ -7,7 +7,7 @@ class FileSeparation{
 
 public:
     std::string toString(){
-        return "Class FileSeparation";
+        return "Hello FileSeparation";
     }
 
 };
