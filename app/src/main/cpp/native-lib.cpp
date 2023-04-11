@@ -12,6 +12,7 @@ extern "C" JNIEXPORT jstring JNICALL Java_erofeevsky_sfedu_chankifire_MainActivi
     const jobject res = env->CallObjectMethod(mainActivityInst, mid);
     const std::string act_msg = env->GetStringUTFChars((jstring) res, JNI_FALSE);
 
+    //env->
 
     FileSeparation fs;
     std::string fs_hello = fs.toString();
