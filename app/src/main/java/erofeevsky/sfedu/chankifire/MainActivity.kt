@@ -14,12 +14,19 @@ import androidx.annotation.StringRes
 
 class MainActivity : AppCompatActivity() {
 
+
+
+    private lateinit var file: String
+    public fun GetFile() : String {
+        return "Kotlin => C++"
+    }
+
     private lateinit var binding: ActivityMainBinding
 
     private val openLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             try {
-                uri?.let { openFile(it) }
+                uri?.let { openFile(it); println("URI ------------------------------>$it") }
             } catch (e: Exception) {
                 showError(R.string.cant_open_file)
             }
@@ -28,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         val data = contentResolver.openInputStream(uri)?.use {
             String(it.readBytes())
         } ?: throw IllegalStateException("Can't open input stream")
+        file = data
         binding.sampleText.text = data
     }
 
@@ -45,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             openButton.setOnClickListener { openLauncher.launch(arrayOf("text/plain")) }
         }
         // Example of a call to a native method
-        //binding.sampleText.text = stringFromJNI()
+        binding.sampleText.text = stringFromJNI()
     }
 
 
