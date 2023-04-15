@@ -1,15 +1,12 @@
 package erofeevsky.sfedu.chankifire
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.FileUtils
-import androidx.appcompat.app.AppCompatActivity
-import erofeevsky.sfedu.chankifire.databinding.ActivityMainBinding
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-
+import androidx.appcompat.app.AppCompatActivity
+import erofeevsky.sfedu.chankifire.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
@@ -17,8 +14,14 @@ class MainActivity : AppCompatActivity() {
 
 
     private lateinit var file: String
-    public fun GetFile() : String {
-        return "Kotlin => C++"
+    private lateinit var path: String
+    public fun getFile() : String {
+        //return "Kotlin => C++"
+        return path
+    }
+
+    private fun getRealPathFromURI(uri: Uri): String {
+        return "/storage/emulated/0/Download/hello_ndk.txt"
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -26,11 +29,17 @@ class MainActivity : AppCompatActivity() {
     private val openLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             try {
-                uri?.let { openFile(it); println("URI ------------------------------>$it") }
+                uri?.let {
+                    //openFile(it); println("URI ------------------------------>$it")
+                    path = getRealPathFromURI(it)
+                    println("Path ------------------------------>${file}")
+                    binding.sampleText.text = stringFromJNI()
+                }
             } catch (e: Exception) {
                 showError(R.string.cant_open_file)
             }
         }
+
     private fun openFile(uri: Uri) {
         val data = contentResolver.openInputStream(uri)?.use {
             String(it.readBytes())
@@ -53,7 +62,7 @@ class MainActivity : AppCompatActivity() {
             openButton.setOnClickListener { openLauncher.launch(arrayOf("text/plain")) }
         }
         // Example of a call to a native method
-        binding.sampleText.text = stringFromJNI()
+        //binding.sampleText.text = stringFromJNI()
     }
 
 
