@@ -1,30 +1,29 @@
 package erofeevsky.sfedu.chankifire
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.Nullable
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import erofeevsky.sfedu.chankifire.databinding.ActivityMainBinding
+import java.io.File
+import java.io.FileOutputStream
 
 
 class MainActivity : AppCompatActivity() {
 
     private val PERMISSION_STORAGE = 101
 
-    private lateinit var file: String
     private lateinit var path: String
+    private lateinit var fileName: String
+
     public fun getFile() : String {
         //return "Kotlin => C++"
         return path
-    }
-
-    private fun getRealPathFromURI(uri: Uri): String {
-        return "/storage/emulated/0/Download/hello_ndk.txt"
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -33,8 +32,13 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             try {
                 uri?.let {
-                    openFile(it); println("URI ------------------------------>$it")
-                    path = it.toString()
+                    contentResolver.query(it, null, null, null, null)?.use { cursor ->
+                        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        cursor.moveToFirst()
+                        fileName = cursor.getString(nameIndex)
+                        cursor.close()
+                    }
+                    copyToInternalStorage(it)
                     println("Path ------------------------------>${path}")
                     binding.sampleText.text = stringFromJNI()
                 }
@@ -43,12 +47,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private fun openFile(uri: Uri) {
-        val data = contentResolver.openInputStream(uri)?.use {
-            String(it.readBytes())
-        } ?: throw IllegalStateException("Can't open input stream")
-        file = data
-        binding.sampleText.text = data
+
+    private fun copyToInternalStorage(uri: Uri) {
+        val file = File(filesDir.path, fileName)
+        val output = FileOutputStream(file)
+        contentResolver.openInputStream(uri)?.copyTo(output)
+            ?: throw IllegalStateException("Can't open input stream")
+        path = file.absolutePath
+        output.close()
     }
 
 
